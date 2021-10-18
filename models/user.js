@@ -19,7 +19,9 @@ userSchema.methods.serialize = function(){
 		username: this.email || '',
         id:this._id,
         level:this.level,
-        fullName:this.fullName
+        fullName:this.fullName,
+        firstName:this.firstName,
+        lastName:this.lastName
 	};
 }
 

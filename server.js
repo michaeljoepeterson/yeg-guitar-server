@@ -33,13 +33,6 @@ passport.use(localStrategy);
 passport.use(jwtStrategy);
 
 app.use('/api/auth/', authRouter);
-/*
-app.use('/api/users',userRouter);
-app.use('/api/students',studentRouter);
-app.use('/api/lessons',lessonRouter);
-
-app.use('/api/category',categoryrouter);
-*/
 app.use('/api',router);
 
 function runServer( databaseUrl, port = PORT) {

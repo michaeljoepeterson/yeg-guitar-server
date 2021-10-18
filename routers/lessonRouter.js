@@ -7,6 +7,7 @@ const {totalHours,totalStudents,hourBreakdown} = require('./tools/hours');
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 //const {checkAdminEmails,checkEmail,checkUser,checkAdminLocs} = require('../tools/toolExports');
 const jwtAuth = passport.authenticate('jwt', { session: false });
+const {levelAccess} = require('../tools/toolExports');
 router.use(jwtAuth);
 
 router.post('/',async (req,res) => {
@@ -271,6 +272,26 @@ router.get('/search',async (req,res) => {
             code:500,
             message:'an error occured',
             error:err
+        });
+    }
+});
+
+router.delete('/:id',levelAccess(1),async (req,res) => {
+    let {id} = req.params;
+    try{
+        await Lesson.findByIdAndDelete(id);
+        res.status(200);
+        return res.json({
+            message:'Lesson deleted'
+        });
+    }
+    catch(e){
+        console.log(e);
+        res.status(500);
+        return res.json({
+            code:500,
+            message:'an error occured',
+            error:e
         });
     }
 });

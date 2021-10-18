@@ -175,12 +175,48 @@ router.put('/reset',checkSecret,jwtAuth,async (req,res) => {
     }
     catch (err) {
         console.log('error ', err);
+        res.status(500);
         return res.json({
             code: 500,
             message: 'an error occured'
         });
     }
     
+});
+
+router.post('/create',levelAccess(1), jwtAuth,async(req,res) => {
+    const {user} = req.body;
+    try{
+        let foundUser = await User.findByEmail(user.username);
+        let updatedUser = {...user};
+        delete updatedUser.id;
+        let req;
+        if(!foundUser){
+            updatedUser.email = updatedUser.username;
+            req = User.create({...updatedUser});
+        }
+        else{
+            delete updatedUser.email;
+            req = User.findByIdAndUpdate(foundUser.id,
+                {
+                    $set:updatedUser
+                },{new:true});
+        }
+
+        let newUser = await req;
+        return res.json({
+            message:'User created',
+            user:newUser.serialize()
+        });
+    }
+    catch(e){
+        console.log('error ', e);
+        res.status(500);
+        return res.json({
+            message: 'an error occured creating the user',
+            error:e.message
+        });
+    }
 });
 
 module.exports = {router};
