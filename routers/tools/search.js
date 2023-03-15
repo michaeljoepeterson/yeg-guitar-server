@@ -32,6 +32,23 @@ function findById(id,start,end){
     return promise;
 }
 
+async function findByLessonId(id){
+    try{
+        let lesson = await Lesson.findById(id).populate('teacher').populate({
+            path:'students',
+            populate:{
+                path:'category'
+            }
+        }).populate('_lessonType');
+
+        return lesson;
+    }
+    catch(e){
+        console.warn(e);
+    }
+}
+
+
 function findByEmail(email,start,end){
     let promise = new Promise((resolve,reject) => {
         return User.find({email})
@@ -152,4 +169,4 @@ async function generalSearch(options){
 
 }
 
-module.exports = {findById,findByEmail,generalSearch};
+module.exports = {findById, findByEmail, generalSearch, findByLessonId};

@@ -2,7 +2,7 @@ const express = require('express');
 const {Lesson} = require('../models/lesson');
 const router = express.Router();
 const passport = require('passport');
-const {findById,findByEmail,generalSearch} = require('./tools/search');
+const {findById,findByEmail,generalSearch, findByLessonId} = require('./tools/search');
 const {totalHours,totalStudents,hourBreakdown} = require('./tools/hours');
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 //const {checkAdminEmails,checkEmail,checkUser,checkAdminLocs} = require('../tools/toolExports');
@@ -64,6 +64,7 @@ router.get('/',(req,res) => {
         });
     });
 });
+
 
 router.get('/my-lessons',(req,res) => {
     let {id,email,startDate,endDate} = req.query;
@@ -292,6 +293,24 @@ router.delete('/:id',levelAccess(1),async (req,res) => {
             code:500,
             message:'an error occured',
             error:e
+        });
+    }
+});
+
+router.get('/:id',async (req,res) => {
+    const {id} = req.params;
+    //return Lesson.find({}).populate('students').populate('teacher')
+    try {
+        const lesson = await findByLessonId(id);
+        return res.json({
+            code: 200,
+            lesson: lesson.serialize()
+        });
+    } catch (err) {
+        return res.json({
+            code: 500,
+            message: 'an error occured',
+            error: err
         });
     }
 });

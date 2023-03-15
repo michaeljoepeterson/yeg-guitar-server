@@ -19,7 +19,7 @@ app.use(function (req, res, next) {
     console.log('origin: ',origin);
     if(allowedOrigins.indexOf(origin) > -1){
       console.log('origin found: ',origin);
-       res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Origin', origin);
     }
     res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Accept,authtoken,authorization');
     res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE');
