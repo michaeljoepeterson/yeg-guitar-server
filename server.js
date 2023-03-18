@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const passport = require('passport');
-const {PORT, DATABASE_URL,DOMAINS } = require('./config');
+const {PORT, DATABASE_URL,DOMAINS, IS_DEV } = require('./config');
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const jsonParser = bodyParser.json();
@@ -68,7 +68,8 @@ function runServer( databaseUrl, port = PORT) {
   }
   
   if (require.main === module) {
-    runServer(DATABASE_URL).catch(err => console.error(err));
+    const dbUrl = IS_DEV ? process.env.DATABASE_URL_TEST : DATABASE_URL;
+    runServer(dbUrl).catch(err => console.error(err));
   }
   
   module.exports = { app, runServer, closeServer };

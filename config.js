@@ -5,6 +5,7 @@ exports.ADMIN_S = process.env.ADMIN_S;
 exports.ADMIN_SECRET = process.env.ADMIN_SECRET;
 exports.JWT_EXPIRY = process.env.JWT_EXPIRY || '1h';
 exports.DOMAINS = process.env.DOMAINS;
+exports.IS_DEV = process.env.IS_DEV;
 //exports.ADMIN_EMAILS = process.env.ADMIN_EMAILS;
 //exports.ADMIN_LOC = process.env.ADMIN_LOC;
 
