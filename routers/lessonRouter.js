@@ -2,7 +2,7 @@ const express = require('express');
 const {Lesson} = require('../models/lesson');
 const router = express.Router();
 const passport = require('passport');
-const {findById,findByEmail,generalSearch, findByLessonId} = require('./tools/search');
+const {findById,findByEmail,generalSearch, findByLessonId, getStudentLastLesson} = require('./tools/search');
 const {totalHours,totalStudents,hourBreakdown} = require('./tools/hours');
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 //const {checkAdminEmails,checkEmail,checkUser,checkAdminLocs} = require('../tools/toolExports');
@@ -293,6 +293,23 @@ router.delete('/:id',levelAccess(1),async (req,res) => {
             code:500,
             message:'an error occured',
             error:e
+        });
+    }
+});
+
+router.get('/student-last-lesson', levelAccess(2), async (req, res) => {
+    try{
+        const lessons = await getStudentLastLesson();
+        return res.json({
+            message: 'Found lessons',
+            lessons
+        });
+    }
+    catch(error){
+        res.status(500);
+        return res.json({
+            message: 'Error getting lessons',
+            error
         });
     }
 });

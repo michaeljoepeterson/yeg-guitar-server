@@ -11,7 +11,7 @@ let checkUserLevel = function(req,res,next){
 		});
     }
 }
-
+// todo refactor to use user level from either jwt or from db
 let levelAccess = function(level){
     return async (req, res, next) => {
         try {

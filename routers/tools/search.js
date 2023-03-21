@@ -166,7 +166,22 @@ async function generalSearch(options){
     } catch (err) {
         throw(err);
     }
-
 }
 
-module.exports = {findById, findByEmail, generalSearch, findByLessonId};
+async function getStudentLastLesson(){
+    try{
+        const lessons = await Lesson.aggregate([
+            {
+                "$group": {
+                    _id: "$teacher"
+                }
+            }
+        ])
+        return lessons;
+    }
+    catch(e){
+        throw e;
+    }
+}
+
+module.exports = {findById, findByEmail, generalSearch, findByLessonId, getStudentLastLesson};
