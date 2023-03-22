@@ -191,6 +191,12 @@ async function getStudentLastLesson(){
                     },
                     students: {
                         '$first': '$students'
+                    },
+                    lessonType: {
+                        '$first': '$lessonType'
+                    },
+                    oldLessonType: {
+                        '$first': '$lessonType'
                     }
                 }
             },
@@ -203,12 +209,36 @@ async function getStudentLastLesson(){
                 }
             },
             {
+                $lookup: {
+                    from: 'users',
+                    localField: 'teacher',
+                    foreignField: '_id',
+                    as: 'teacher',
+                    pipeline: [
+                        {
+                            $project: {
+                                firstName: 1,
+                                lastName: 1,
+                                username: "$email",
+                                level: 1,
+                                fullName: {
+                                    $concat: ["$firstName", " ", "$lastName"]
+                                },
+                                _id: 1
+                            }
+                        }
+                    ]
+                }
+            },
+            {
                 $project: {
                     _id: "$lessonId",
                     teacher: "$teacher",
                     date: "$date",
                     notes: "$notes",
-                    students: '$students'
+                    students: '$students',
+                    lessonType: '$lessonType',
+                    oldLessonType: '$oldLessonType'
                 }
             }
         ]);
