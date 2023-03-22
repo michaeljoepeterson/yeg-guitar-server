@@ -212,47 +212,7 @@ async function getStudentLastLesson(){
                 }
             }
         ]);
-        /*
-        const lessons = await Lesson.aggregate([
-            {
-                "$group": {
-                    _id: '$teacher',
-                    lessonId: {
-                        $first: '$_id'
-                    },
-                    teacher: {
-                        $first: '$teacher'
-                    },
-                    date: {
-                        '$max': '$date',
-                    },
-                    notes: {
-                        '$first': '$notes'
-                    },
-                    students: {
-                        '$first': '$students'
-                    }
-                }
-            },
-            {
-                $lookup: {
-                    from: 'students',
-                    localField: 'students',
-                    foreignField: '_id',
-                    as: 'students'
-                }
-            },
-            {
-                $project: {
-                    _id: "$lessonId",
-                    teacher: "$teacher",
-                    date: "$date",
-                    notes: "$notes",
-                    students: '$students'
-                }
-            }
-        ]);
-        */
+
         return lessons;
     }
     catch(e){
