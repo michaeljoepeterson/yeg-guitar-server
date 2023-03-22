@@ -170,7 +170,50 @@ async function generalSearch(options){
 
 async function getStudentLastLesson(){
     try{
-        let lessons = await Lesson.aggregate([
+        const lessons = await Lesson.aggregate([
+            {
+                $unwind: '$students'
+            },
+            {
+                "$group": {
+                    _id: '$students',
+                    lessonId: {
+                        $first: '$_id'
+                    },
+                    teacher: {
+                        $first: '$teacher'
+                    },
+                    date: {
+                        '$max': '$date',
+                    },
+                    notes: {
+                        '$first': '$notes'
+                    },
+                    students: {
+                        '$first': '$students'
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'students',
+                    localField: 'students',
+                    foreignField: '_id',
+                    as: 'students'
+                }
+            },
+            {
+                $project: {
+                    _id: "$lessonId",
+                    teacher: "$teacher",
+                    date: "$date",
+                    notes: "$notes",
+                    students: '$students'
+                }
+            }
+        ]);
+        /*
+        const lessons = await Lesson.aggregate([
             {
                 "$group": {
                     _id: '$teacher',
@@ -209,7 +252,7 @@ async function getStudentLastLesson(){
                 }
             }
         ]);
-        //lessons = await lessons.populate('teacher');
+        */
         return lessons;
     }
     catch(e){
