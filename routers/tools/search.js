@@ -170,77 +170,62 @@ async function generalSearch(options){
 
 async function getStudentLastLesson(){
     try{
-        const lessons = await Lesson.aggregate([
-            {
-                $unwind: '$students'
-            },
-            {
-                "$group": {
-                    _id: '$students',
-                    lessonId: {
-                        $first: '$_id'
-                    },
-                    teacher: {
-                        $first: '$teacher'
-                    },
-                    date: {
-                        '$max': '$date',
-                    },
-                    notes: {
-                        '$first': '$notes'
-                    },
-                    students: {
-                        '$first': '$students'
-                    },
-                    lessonType: {
-                        '$first': '$lessonType'
-                    },
-                    oldLessonType: {
-                        '$first': '$lessonType'
-                    }
-                }
-            },
+        const lessons = await Student.aggregate([
             {
                 $lookup: {
-                    from: 'students',
-                    localField: 'students',
-                    foreignField: '_id',
-                    as: 'students'
-                }
-            },
-            {
-                $lookup: {
-                    from: 'users',
-                    localField: 'teacher',
-                    foreignField: '_id',
-                    as: 'teacher',
+                    from: 'lessons',
+                    let: { studentId: "$_id" },
                     pipeline: [
                         {
-                            $project: {
-                                firstName: 1,
-                                lastName: 1,
-                                username: "$email",
-                                level: 1,
-                                fullName: {
-                                    $concat: ["$firstName", " ", "$lastName"]
+                            $match: {
+                                $expr: {
+                                    $in: [ "$$studentId", "$students" ]
+                                }
+                            }
+                        },
+                        { $sort: {date: -1}},
+                        {
+                            "$group": {
+                                _id: null,
+                                lessonId: {
+                                    $first: '$_id'
                                 },
-                                _id: 1
+                                teacher: {
+                                    $first: '$teacher'
+                                },
+                                date: {
+                                    '$max': '$date',
+                                },
+                                notes: {
+                                    '$first': '$notes'
+                                },
+                                students: {
+                                    '$first': '$students'
+                                },
+                                lessonType: {
+                                    '$first': '$lessonType'
+                                },
+                                oldLessonType: {
+                                    '$first': '$lessonType'
+                                }
+                                
+                            }
+                        },
+                        {
+                            $project: {
+                                lessonType: 1,
+                                date: 1,
+                                lessonId: 1,
+                                notes: 1,
+                                students: 1,
+                                lessonType: 1,
+                                oldLessonType: 1
                             }
                         }
-                    ]
+                    ],
+                    as: 'lesson'
                 }
             },
-            {
-                $project: {
-                    _id: "$lessonId",
-                    teacher: "$teacher",
-                    date: "$date",
-                    notes: "$notes",
-                    students: '$students',
-                    lessonType: '$lessonType',
-                    oldLessonType: '$oldLessonType'
-                }
-            }
         ]);
 
         return lessons;
