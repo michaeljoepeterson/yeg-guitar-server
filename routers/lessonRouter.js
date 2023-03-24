@@ -299,7 +299,8 @@ router.delete('/:id',levelAccess(1),async (req,res) => {
 
 router.get('/student-last-lesson', levelAccess(2), async (req, res) => {
     try{
-        const lessons = await getStudentLastLesson();
+        const {startDate, endDate} = req.query;
+        const lessons = await getStudentLastLesson(startDate, endDate);
         return res.json({
             message: 'Found lessons',
             lessons

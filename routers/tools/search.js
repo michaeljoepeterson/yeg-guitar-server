@@ -168,8 +168,22 @@ async function generalSearch(options){
     }
 }
 
-async function getStudentLastLesson(){
+async function getStudentLastLesson(startDate, endDate){
     try{
+        startDate = startDate ? new Date(startDate) : null
+        endDate = endDate ? new Date(endDate) : new Date();
+
+        const dateQuery = {
+            $match: {
+                date: {
+                    $lte: endDate
+                }
+            }
+        };
+        if(startDate){
+            dateQuery.$match.date["$gte"] = startDate;
+        }
+
         const lessons = await Student.aggregate([
             {
                 $lookup: {
@@ -184,6 +198,7 @@ async function getStudentLastLesson(){
                             }
                         },
                         { $sort: {date: -1}},
+                        dateQuery,
                         {
                             "$group": {
                                 _id: null,
@@ -215,11 +230,12 @@ async function getStudentLastLesson(){
                             $project: {
                                 lessonType: 1,
                                 date: 1,
-                                lessonId: 1,
                                 notes: 1,
                                 students: 1,
                                 lessonType: 1,
-                                oldLessonType: 1
+                                oldLessonType: 1,
+                                teacher: 1,
+                                _id: '$lessonId'
                             }
                         }
                     ],
