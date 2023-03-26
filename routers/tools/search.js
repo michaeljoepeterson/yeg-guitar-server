@@ -168,6 +168,12 @@ async function generalSearch(options){
     }
 }
 
+/**
+ * get the latest student lesson within the time range
+ * @param {*} startDate 
+ * @param {*} endDate 
+ * @returns 
+ */
 async function getStudentLastLesson(startDate, endDate){
     try{
         startDate = startDate ? new Date(startDate) : null
@@ -227,6 +233,28 @@ async function getStudentLastLesson(startDate, endDate){
                             }
                         },
                         {
+                            $lookup: {
+                                from: 'users',
+                                localField: 'teacher',
+                                foreignField: '_id',
+                                as: 'teacher',
+                                pipeline: [
+                                    {
+                                        $project: {
+                                            firstName: 1,
+                                            lastName: 1,
+                                            username: "$email",
+                                            level: 1,
+                                            fullName: {
+                                                $concat: ["$firstName", " ", "$lastName"]
+                                            },
+                                            _id: 1
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
                             $project: {
                                 lessonType: 1,
                                 date: 1,
@@ -243,8 +271,8 @@ async function getStudentLastLesson(startDate, endDate){
                 }
             },
         ]);
-
-        return lessons;
+        // filter active users
+        return lessons.filter(lesson => lesson.active);
     }
     catch(e){
         throw e;
