@@ -2,7 +2,7 @@ const express = require('express');
 const {Lesson} = require('../models/lesson');
 const router = express.Router();
 const passport = require('passport');
-const {findById,findByEmail,generalSearch, findByLessonId} = require('./tools/search');
+const {findById,findByEmail,generalSearch, findByLessonId, getStudentLastLesson} = require('./tools/search');
 const {totalHours,totalStudents,hourBreakdown} = require('./tools/hours');
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 //const {checkAdminEmails,checkEmail,checkUser,checkAdminLocs} = require('../tools/toolExports');
@@ -297,9 +297,26 @@ router.delete('/:id',levelAccess(1),async (req,res) => {
     }
 });
 
+router.get('/student-last-lesson', levelAccess(1), async (req, res) => {
+    try{
+        const {startDate, endDate} = req.query;
+        const lessons = await getStudentLastLesson(startDate, endDate);
+        return res.json({
+            message: 'Found lessons',
+            lessons
+        });
+    }
+    catch(error){
+        res.status(500);
+        return res.json({
+            message: 'Error getting lessons',
+            error
+        });
+    }
+});
+
 router.get('/:id',async (req,res) => {
     const {id} = req.params;
-    //return Lesson.find({}).populate('students').populate('teacher')
     try {
         const lesson = await findByLessonId(id);
         return res.json({

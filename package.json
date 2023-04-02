@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "set IS_DEV=true && nodemon server.js",
+    "dev-windows": "set IS_DEV=true && nodemon server.js",
+    "dev": "export IS_DEV=true && nodemon server.js",
     "prod": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

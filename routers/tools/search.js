@@ -166,7 +166,117 @@ async function generalSearch(options){
     } catch (err) {
         throw(err);
     }
-
 }
 
-module.exports = {findById, findByEmail, generalSearch, findByLessonId};
+/**
+ * get the latest student lesson within the time range
+ * @param {*} startDate 
+ * @param {*} endDate 
+ * @returns 
+ */
+async function getStudentLastLesson(startDate, endDate){
+    try{
+        startDate = startDate ? new Date(startDate) : null
+        endDate = endDate ? new Date(endDate) : new Date();
+
+        const dateQuery = {
+            $match: {
+                date: {
+                    $lte: endDate
+                }
+            }
+        };
+        if(startDate){
+            dateQuery.$match.date["$gte"] = startDate;
+        }
+
+        const lessons = await Student.aggregate([
+            {
+                $lookup: {
+                    from: 'lessons',
+                    let: { studentId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $in: [ "$$studentId", "$students" ]
+                                }
+                            }
+                        },
+                        { $sort: {date: -1}},
+                        dateQuery,
+                        {
+                            "$group": {
+                                _id: null,
+                                lessonId: {
+                                    $first: '$_id'
+                                },
+                                teacher: {
+                                    $first: '$teacher'
+                                },
+                                date: {
+                                    '$max': '$date',
+                                },
+                                notes: {
+                                    '$first': '$notes'
+                                },
+                                students: {
+                                    '$first': '$students'
+                                },
+                                lessonType: {
+                                    '$first': '$lessonType'
+                                },
+                                oldLessonType: {
+                                    '$first': '$lessonType'
+                                }
+                                
+                            }
+                        },
+                        {
+                            $lookup: {
+                                from: 'users',
+                                localField: 'teacher',
+                                foreignField: '_id',
+                                as: 'teacher',
+                                pipeline: [
+                                    {
+                                        $project: {
+                                            firstName: 1,
+                                            lastName: 1,
+                                            username: "$email",
+                                            level: 1,
+                                            fullName: {
+                                                $concat: ["$firstName", " ", "$lastName"]
+                                            },
+                                            _id: 1
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            $project: {
+                                lessonType: 1,
+                                date: 1,
+                                notes: 1,
+                                students: 1,
+                                lessonType: 1,
+                                oldLessonType: 1,
+                                teacher: 1,
+                                _id: '$lessonId'
+                            }
+                        }
+                    ],
+                    as: 'lesson'
+                }
+            },
+        ]);
+        // filter active users
+        return lessons.filter(lesson => lesson.active);
+    }
+    catch(e){
+        throw e;
+    }
+}
+
+module.exports = {findById, findByEmail, generalSearch, findByLessonId, getStudentLastLesson};
