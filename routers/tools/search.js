@@ -271,8 +271,9 @@ async function getStudentLastLesson(startDate, endDate){
                 }
             },
         ]);
-        // filter active users
-        return lessons.filter(lesson => lesson.active);
+
+        const activeLessons = lessons.filter(l => l.active);
+        return activeLessons;
     }
     catch(e){
         throw e;
