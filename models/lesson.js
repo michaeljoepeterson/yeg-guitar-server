@@ -32,6 +32,8 @@ lessonSchema.methods.serialize = function(){
 	};
 };
 
+lessonSchema.index({date: 1});
+
 const Lesson = mongoose.model("Lesson",lessonSchema);
 
 module.exports = {Lesson};
